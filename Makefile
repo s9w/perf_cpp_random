@@ -3,7 +3,6 @@ cpp: perf_cpp-random.cpp
 
 debug: perf_cpp-random.cpp
 	g++ -g -Wall -march=native -std=c++11 perf_cpp-random.cpp -o perf_cpp-random
-<<<<<<< HEAD
 
 build: gcc clang icc
 
@@ -29,5 +28,3 @@ numbers: numbers_icc numbers_gcc numbers_clang
 
 plot: plot.plt
 	gnuplot plot.plt
-=======
->>>>>>> 1919eab49757eb8e19a6601cf5de3f6443e16d97
