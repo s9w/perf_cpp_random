@@ -13,13 +13,13 @@ icc: perf_cpp-random.cpp
 	icpc -lboost_random -O3 -march=native -std=c++11 perf_cpp-random.cpp -o perf_cpp-random_icc
 
 numbers_gcc: perf_cpp-random_gcc
-	./perf_cpp-random gcc
+	./perf_cpp-random_gcc gcc
 
 numbers_clang: perf_cpp-random_clang
-	./perf_cpp-random clang
+	./perf_cpp-random_clang clang
 
 numbers_icc: perf_cpp-random_icc
-	./perf_cpp-random icc
+	./perf_cpp-random_icc icc
 
 numbers: numbers_icc numbers_gcc numbers_clang
 
