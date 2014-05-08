@@ -30,12 +30,12 @@ double timer_bits2(int n, std::mt19937_64 &rng) {
 	for (int i = 0; i < n; ++i) {
 		if (shifts >= 63) {
 			random_ulong = rng();
-		          	shifts = 0;
+			shifts = 0;
 		}
 		vec[i] = (random_ulong >> shifts) & 1;
 		shifts++;
 	}
-	 t2 = std::chrono::high_resolution_clock::now();
+	t2 = std::chrono::high_resolution_clock::now();
 	auto runtime = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1000.0;
 	auto sum = vec[0]; // access to avoid compiler skipping
 	return runtime;
@@ -83,25 +83,6 @@ double timer_rng(T_rng &rng, int n) {
 	return runtime;
 }
 
-// template <typename T_rng>
-// double timer_rng_modulo(T_rng &rng, int n) {
-// 	std::vector<typename T_rng::result_type> vec(n, 0);
-// 	auto t1 = std::chrono::high_resolution_clock::now();
-// 	auto t2 = std::chrono::high_resolution_clock::now();
-// 	t1 = std::chrono::high_resolution_clock::now();
-// 	for (int i = 0; i < n; ++i)
-// 		vec[i] = (rng() / rng.max())*1000;
-// 	t2 = std::chrono::high_resolution_clock::now();
-// 	auto runtime = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1000.0;
-// 	auto sum = vec[0]; //access to avoid compiler skipping
-// 	return runtime;
-// }
-
-// template <typename T_rng>
-// int uniform_int_distribution(T_rng &rng, int a, int b){
-// 	return rng.max()
-// }
-
 std::string format_max(uint_fast64_t max){
 	if(max == 4294967295 )
 		return "2^32-1";
@@ -134,12 +115,12 @@ int main(int argc, char* argv[]) {
 	std::uniform_real_distribution<double> dist_double(0.0, 1.0);
 	boost::random::uniform_int_distribution<> dist_boost_int(1, 1000);
 	std::cout << std::fixed << std::setprecision(2);
+	auto t1 = std::chrono::high_resolution_clock::now();
+	auto t2 = std::chrono::high_resolution_clock::now();
 
 	// baseline int
 	std::vector<int> vec_int(n, 0);
 	std::vector<uint_fast64_t> vec_uint(n, 0);
-	auto t1 = std::chrono::high_resolution_clock::now();
-	auto t2 = std::chrono::high_resolution_clock::now();
 	t1 = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < n; ++i)
 		vec_int[i] = 4;
@@ -186,7 +167,6 @@ int main(int argc, char* argv[]) {
 	f_int << std::endl << "# runtimes int" << std::endl;
 	f_int << "std::default_random_engine | " << timer_rng_dist(rng_default, dist_int, n) << " | " << timer_rng_mod(rng_default, n) << std::endl;
 	f_int << "std::mt19937 | " << timer_rng_dist(rng_mt, dist_int, n) << " | " << timer_rng_mod(rng_mt, n) << std::endl;
-	//f_intout << "rng_mt_modulo | " << timer_rng_modulo(rng_mt, n) << std::endl;
 	f_int << "std::mt19937_64 | " << timer_rng_dist(rng_mt_64, dist_ulong, n) << " | " << timer_rng_mod(rng_mt_64, n) << std::endl;
 	f_int << "std::minstd_rand | " << timer_rng_dist(rng_minstd, dist_int, n) << " | " << timer_rng_mod(rng_minstd, n) << std::endl;
 	f_int << "boost::random::mt19937 | " << timer_rng_dist(rng_boost_mt19937, dist_boost_int, n) << " | " << timer_rng_mod(rng_boost_mt19937, n) << std::endl;
