@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
 	std::random_device rng_rdrand;
 	std::random_device rng_urandom("/dev/urandom");
 	std::uniform_int_distribution<int> dist_int(0, 1000);
-	std::uniform_int_distribution<unsigned long> dist_ulong(0, 1000);
+	std::uniform_int_distribution<uint64_t> dist_ulong(0, 1000);
 	std::uniform_real_distribution<float> dist_float(0.0, 1.0);
 	std::uniform_real_distribution<double> dist_double(0.0, 1.0);
 	boost::random::uniform_int_distribution<> dist_boost_int(1, 1000);
