@@ -7,32 +7,60 @@
 #include <boost/random.hpp>
 #include <fstream>
 
-double timer_bits1(int n, std::mt19937_64 &rng) {
+inline double timer_bits1(int n, std::mt19937 &rng) {
 	std::vector<int> vec(n, 0);
+	std::uniform_int_distribution<int> dist_int(0, 1);
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto t2 = std::chrono::high_resolution_clock::now();
 	t1 = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < n; ++i)
-		vec[i] = rng() % 2;
+	for (auto& e : vec) 
+		e = dist_int(rng);
 	t2 = std::chrono::high_resolution_clock::now();
 	auto runtime = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1000.0;
 	auto sum = vec[0]; // access to avoid compiler skipping
 	return runtime;
 }
 
-double timer_bits2(int n, std::mt19937_64 &rng) {
+inline double timer_bits1_64(int n, std::mt19937_64 &rng) {
+	std::vector<int> vec(n, 0);
+	std::uniform_int_distribution<int> dist_int(0, 1);
+	auto t1 = std::chrono::high_resolution_clock::now();
+	auto t2 = std::chrono::high_resolution_clock::now();
+	t1 = std::chrono::high_resolution_clock::now();
+	for (auto& e : vec) 
+		e = dist_int(rng);
+	t2 = std::chrono::high_resolution_clock::now();
+	auto runtime = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1000.0;
+	auto sum = vec[0]; // access to avoid compiler skipping
+	return runtime;
+}
+
+inline double timer_bits2(int n, std::mt19937_64 &rng) {
+	std::vector<int> vec(n, 0);
+	auto t1 = std::chrono::high_resolution_clock::now();
+	auto t2 = std::chrono::high_resolution_clock::now();
+	t1 = std::chrono::high_resolution_clock::now();
+	for (auto& e : vec) 
+		e = rng() % 2;
+	t2 = std::chrono::high_resolution_clock::now();
+	auto runtime = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1000.0;
+	auto sum = vec[0]; // access to avoid compiler skipping
+	return runtime;
+}
+
+inline double timer_bits3(int n, std::mt19937_64 &rng) {
 	unsigned long random_ulong = rng();
 	int shifts = 0;
 	std::vector<int> vec(n, 0);
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto t2 = std::chrono::high_resolution_clock::now();
-	 t1 = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < n; ++i) {
+	t1 = std::chrono::high_resolution_clock::now();
+	for (auto& e : vec) {
 		if (shifts >= 63) {
 			random_ulong = rng();
 			shifts = 0;
 		}
-		vec[i] = (random_ulong >> shifts) & 1;
+		e = (random_ulong >> shifts) & 1;
 		shifts++;
 	}
 	t2 = std::chrono::high_resolution_clock::now();
@@ -42,13 +70,13 @@ double timer_bits2(int n, std::mt19937_64 &rng) {
 }
 
 template <typename T_rng, typename T_dist>
-double timer_rng_dist(T_rng &rng, T_dist &dist, int n) {
+inline double timer_rng_dist(T_rng &rng, T_dist &dist, int n) {
 	std::vector<typename T_dist::result_type> vec(n, 0);
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto t2 = std::chrono::high_resolution_clock::now();
 	t1 = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < n; ++i)
-		vec[i] = dist(rng);
+	for (auto& e : vec)
+		e = dist(rng);
 	t2 = std::chrono::high_resolution_clock::now();
 	auto runtime = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() / 1000.0;
 	auto sum = vec[0]; //access to avoid compiler skipping
@@ -56,7 +84,7 @@ double timer_rng_dist(T_rng &rng, T_dist &dist, int n) {
 }
 
 template <typename T_rng>
-double timer_rng_mod(T_rng &rng, int n) {
+inline double timer_rng_mod(T_rng &rng, int n) {
 	std::vector<typename T_rng::result_type> vec(n, 0);
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -70,7 +98,7 @@ double timer_rng_mod(T_rng &rng, int n) {
 }
 
 template <typename T_rng>
-double timer_rng(T_rng &rng, int n) {
+inline double timer_rng(T_rng &rng, int n) {
 	std::vector<typename T_rng::result_type> vec(n, 0);
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -148,16 +176,16 @@ int main(int argc, char* argv[]) {
 	std::cout << "starting rng calls..." << std::endl;
 	std::ofstream f_calls("output_rng_calls_"+compiler+".txt");
 	f_calls << "# RNG calls" << std::endl;
-	f_calls << "baseline_int | - | " << runtime_int_baseline << std::endl;
-	f_calls << "baseline_uint_fast64_t | - | " << runtime_uint_baseline << std::endl;
+	// f_calls << "baseline_int | - | " << runtime_int_baseline << std::endl;
+	// f_calls << "baseline_uint_fast64_t | - | " << runtime_uint_baseline << std::endl;
 	f_calls << "std::default_random_engine | " << format_max(rng_default.max()) << " | " << timer_rng(rng_default, n) << std::endl;
 	f_calls << "std::mt19937 | " << format_max(rng_mt.max()) << " | " << timer_rng(rng_mt, n) << std::endl;
 	f_calls << "std::mt19937_64 | " << format_max(rng_mt_64.max()) << " | " << timer_rng(rng_mt_64, n) << std::endl;
 	f_calls << "std::minstd_rand | " << format_max(rng_minstd.max()) << " | " << timer_rng(rng_minstd, n) << std::endl;
 	f_calls << "boost::random::mt19937 | " << format_max(rng_boost_mt19937.max()) << " | " << timer_rng(rng_boost_mt19937, n) << std::endl;
 	f_calls << "boost::random::mt19937_64 | " << format_max(rng_boost_mt19937_64.max()) << " | " << timer_rng(rng_boost_mt19937_64, n) << std::endl;
-	f_calls << "RdRand | " << format_max(rng_rdrand.max()) << " | " << timer_rng(rng_rdrand, n) << std::endl;
-	f_calls << "/dev/urandom | " << format_max(rng_urandom.max()) << " | " << timer_rng(rng_urandom, n) << std::endl;
+	// f_calls << "RdRand | " << format_max(rng_rdrand.max()) << " | " << timer_rng(rng_rdrand, n) << std::endl;
+	// f_calls << "/dev/urandom | " << format_max(rng_urandom.max()) << " | " << timer_rng(rng_urandom, n) << std::endl;
 	f_calls << "rand() | " << format_max(RAND_MAX) << " | " << runtime_rand << std::endl;
 	f_calls.close();
 
@@ -171,15 +199,17 @@ int main(int argc, char* argv[]) {
 	f_int << "std::minstd_rand | " << timer_rng_dist(rng_minstd, dist_int, n) << " | " << timer_rng_mod(rng_minstd, n) << std::endl;
 	f_int << "boost::random::mt19937 | " << timer_rng_dist(rng_boost_mt19937, dist_boost_int, n) << " | " << timer_rng_mod(rng_boost_mt19937, n) << std::endl;
 	f_int << "boost::random::mt19937_64 | " << timer_rng_dist(rng_boost_mt19937_64, dist_boost_int, n) << " | " << timer_rng_mod(rng_boost_mt19937_64, n) << std::endl;
-	f_int << "RdRand | " << timer_rng_dist(rng_rdrand, dist_int, n) << " | " << timer_rng_mod(rng_rdrand, n) << std::endl;
-	f_int << "/dev/urandom | " << timer_rng_dist(rng_urandom, dist_int, n) << " | " << timer_rng_mod(rng_urandom, n) << std::endl;
+	// f_int << "RdRand | " << timer_rng_dist(rng_rdrand, dist_int, n) << " | " << timer_rng_mod(rng_rdrand, n) << std::endl;
+	// f_int << "/dev/urandom | " << timer_rng_dist(rng_urandom, dist_int, n) << " | " << timer_rng_mod(rng_urandom, n) << std::endl;
 	f_int.close();
 
-	// // Bits
-	// int n2 = 10000000;
-	// std::cout << std::endl;
-	// std::cout << "runtime bits 1: " << timer_bits1(n2, rng_mt_64) << std::endl;
-	// std::cout << "runtime bits 2: " << timer_bits2(n2, rng_mt_64) << std::endl;
+	// Bits
+	int n2 = 10000000;
+	std::cout << std::endl;
+	std::cout << "runtime bits 1: " << timer_bits1(n2, rng_mt) << std::endl;
+	std::cout << "runtime bits 1: " << timer_bits1_64(n2, rng_mt_64) << std::endl;
+	std::cout << "runtime bits 2: " << timer_bits2(n2, rng_mt_64) << std::endl;
+	std::cout << "runtime bits 3: " << timer_bits3(n2, rng_mt_64) << std::endl;
 
 	// // floats and doubles
 	// std::cout << "starting float calls..." << std::endl;
